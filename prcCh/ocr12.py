@@ -84,10 +84,11 @@ def extract_text(image_path):
     cropped = img[y:y + h, x:x + w]
 
     # 高级预处理
-    # processed = cv2.cvtColor(cropped, cv2.COLOR_BGR2GRAY)
-    # processed = cv2.medianBlur(processed, 3)
-    # processed = cv2.threshold(processed, 0, 255,
-    #                           cv2.THRESH_BINARY | cv2.THRESH_OTSU)[1]
+    # 有问题
+    processed = cv2.cvtColor(cropped, cv2.COLOR_BGR2GRAY)
+    processed = cv2.medianBlur(processed, 3)
+    processed = cv2.threshold(processed, 0, 255,
+                              cv2.THRESH_BINARY | cv2.THRESH_OTSU)[1]
 
     cv2.imshow('Display Window', processed)
     cv2.waitKey(0)
