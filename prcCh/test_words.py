@@ -12,34 +12,38 @@ def extract_bordered_region(img, padding_ratio=0.05):
 
     # 转换为灰度图并增强对比度
     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-    clahe = cv2.createCLAHE(clipLimit=2.0, tileGridSize=(8, 8))
-    enhanced = clahe.apply(gray)
-    blurred = cv2.GaussianBlur(enhanced, (11, 11), 0)
+    blurred = cv2.GaussianBlur(gray, (9, 9), 0)
+    # blurred = gray
+    clahe = cv2.createCLAHE(clipLimit=3.0, tileGridSize=(24, 24))
+    enhanced = clahe.apply(blurred)
 
     # 检测黑色边框（使用自适应阈值）
-    binary = cv2.adaptiveThreshold(blurred, 255,
+    binary = cv2.adaptiveThreshold(enhanced, 255,
                                    cv2.ADAPTIVE_THRESH_GAUSSIAN_C,
-                                   cv2.THRESH_BINARY_INV, 71, 7)
+                                   cv2.THRESH_BINARY_INV, 61, 16)
 
     # 形态学操作强化边框
     kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (7, 7))
-    closed = cv2.morphologyEx(binary, cv2.MORPH_CLOSE, kernel, iterations=1)
+    closed = cv2.morphologyEx(binary, cv2.MORPH_CLOSE, kernel, iterations=3)
 
+    # 查找所有轮廓
+    # inverted = cv2.bitwise_not(closed)
+    # inverted = mask_upper(inverted)
+    inverted = mask_upper(closed)
+    inverted = cv2.bitwise_not(inverted)
+
+
+    # 显示图像预处理过程
     # cv2.imshow("Display Window",blurred)
+    # cv2.waitKey(0)
+    # cv2.imshow("Display Window",enhanced)
     # cv2.waitKey(0)
     # cv2.imshow("Display Window",binary)
     # cv2.waitKey(0)
-    # cv2.imshow("Display Window",closed)
+    # cv2.imshow("Display Window",inverted)
     # cv2.waitKey(0)
 
-    # closed = fill_image_border(closed)
 
-    # cv2.imshow("Display Window",closed)
-    # cv2.waitKey(0)
-
-    # 查找所有轮廓
-    inverted = cv2.bitwise_not(closed)
-    inverted = mask_upper(inverted)
     contours, _ = cv2.findContours(inverted, cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
 
     if not contours:
@@ -52,7 +56,7 @@ def extract_bordered_region(img, padding_ratio=0.05):
     # 过滤掉面积超过图像50%的轮廓
     filtered_contours = [
         cnt for cnt in contours
-        if 0.5 * total_area >= cv2.contourArea(cnt) > 0.01 * total_area  # 只保留面积合理的轮廓
+        if 0.4 * total_area >= cv2.contourArea(cnt) > 0.01 * total_area  # 只保留面积合理的轮廓
     ]
 
     if not filtered_contours:
@@ -73,7 +77,17 @@ def extract_bordered_region(img, padding_ratio=0.05):
         # cv2.imshow('Display Window', result)
         # cv2.waitKey(0)
 
-        epsilon = 0.01 * cv2.arcLength(cnt, True)
+        height, width = gray.shape[:2]
+        # 提取轮廓点的x坐标
+        x_coords = cnt[:, 0, 0]  # 轮廓点坐标格式为 (n,1,2)，提取x列
+        # 检查是否接触左侧（x=0）和右侧（x=width-1）
+        touches_left = np.any(x_coords <= 1)
+        touches_right = np.any(x_coords >= width - 2)
+        # 若同时接触左右两侧，则跳过；否则保留
+        if touches_left and touches_right:
+            continue
+
+        epsilon = 0.03 * cv2.arcLength(cnt, True)
         approx = cv2.approxPolyDP(cnt, epsilon, True)
 
         if len(approx) == 4:
@@ -81,6 +95,7 @@ def extract_bordered_region(img, padding_ratio=0.05):
             approx_final = approx  # 保存近似结果供后续使用
             break  # 找到符合条件的即跳出循环
 
+    # 显示框选区域
     # result = img.copy()
     # cv2.drawContours(result, selected_contour, -1, (0, 0, 255), 10)
     # cv2.imshow('Display Window', result)
@@ -160,77 +175,11 @@ def mask_upper(img, strict_mode=True, return_copy=False):
 
     # 计算切割位置
     height = target.shape[0]
-    cutoff = int(height * 0.4)
+    cutoff = int(height * 0.5)
 
     # 应用遮罩
     if cutoff > 0:  # 防止高度过小的情况
         target[:cutoff, :] = 0
 
     return target
-
-
-def operate_all():
-    # 配置输入路径
-    input_dir = "zisha teapot dataset"
-    img_files = [f for f in os.listdir(input_dir)
-                 if f.lower().endswith(('.jpg', '.jpeg'))]
-
-    # 设置显示窗口
-    cv2.namedWindow('Processing Result', cv2.WINDOW_NORMAL)
-
-    cnt_success = 0
-
-    # 遍历处理所有图片
-    for idx, filename in enumerate(img_files):
-        print(f"\n正在处理第 {idx + 1}/{len(img_files)} 张图片：{filename}")
-
-        input_path = os.path.join(input_dir, filename)
-        img = cv2.imread(input_path)
-
-        if img is None:
-            print(f"  × 无法读取图片")
-            continue
-
-        try:
-            # 执行处理
-            processed = extract_bordered_region(img)
-
-            # 显示结果
-            # cv2.imshow('Processing Result', processed)
-            print("  √ 处理成功 - 按任意键继续，ESC键退出")
-            cnt_success = cnt_success + 1
-
-            # 等待按键（0表示无限等待）
-            # key = cv2.waitKey(0)
-            # if key == 27:  # ESC键退出
-            #     print("\n用户终止处理")
-            #     break
-
-        except Exception as e:
-            print(f"  × 处理失败：{str(e)}")
-
-        # 清除当前显示
-        cv2.destroyAllWindows()
-
-    print(f"success = {cnt_success}")
-    print("\n处理完成！")
-
-def operate_test():
-    # 读取图像
-    img = cv2.imread("IMG_20240628_141415.jpg")
-
-    try:
-        # 提取框内区域
-        text_region = extract_bordered_region(img)
-
-        # 可视化结果
-        # cv2.imshow("Original", img)
-        cv2.imshow("Text Region", text_region)
-        cv2.waitKey(0)
-
-    except Exception as e:
-        print(f"处理失败：{str(e)}")
-
-# operate_test()
-operate_all()
 
