@@ -15,10 +15,10 @@ DEVICE = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 
 def main():
-    # 数据集准备
+
     full_dataset = TeaPotDataset(root_dir='zisha teapot dataset', csv_file='ocr_results_revised.csv')
 
-    # 数据集分割（根据实际情况调整比例）
+    # 数据集分割
     train_size = int(0.8 * len(full_dataset))
     val_size = len(full_dataset) - train_size
     train_dataset, val_dataset = random_split(full_dataset, [train_size, val_size])
@@ -55,7 +55,7 @@ def main():
 
             running_loss += loss.item() * images.size(0)
 
-        # 验证阶段
+        # 验证
         model.eval()
         val_loss = 0.0
         correct = 0

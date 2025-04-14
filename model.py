@@ -7,7 +7,7 @@ from torchvision import models
 class TeaPotClassifier(nn.Module):
     def __init__(self, num_classes):
         super().__init__()
-        # 使用预训练的EfficientNet，高分辨率图像
+        # EfficientNet，适用高分辨率图像
         self.backbone = models.efficientnet_b3(pretrained=True)
 
         # 冻结底层参数
@@ -34,7 +34,6 @@ class TeaPotClassifier(nn.Module):
 
     def forward(self, x):
         features = self.backbone.features(x)
-        # 添加注意力机制
         att = self.attention(features)
         features = features * att
         features = self.backbone.avgpool(features)
