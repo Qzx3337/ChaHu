@@ -25,8 +25,7 @@ def extract_bordered_region(img, card_size=(1200, 600)):
     binary = cv2.adaptiveThreshold(enhanced, 255,
                                    cv2.ADAPTIVE_THRESH_GAUSSIAN_C,
                                    cv2.THRESH_BINARY_INV, 61, 16)
-
-    # 形态学操作强化边框
+    # 形态学强化边框
     kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (7, 7))
     closed = cv2.morphologyEx(binary, cv2.MORPH_CLOSE, kernel, iterations=3)
 
@@ -78,13 +77,11 @@ def extract_bordered_region(img, card_size=(1200, 600)):
         # cv2.imshow('Display Window', result)
         # cv2.waitKey(0)
 
+        # 删除横跨的误判
         height, width = gray.shape[:2]
-        # 提取轮廓点的x坐标
-        x_coords = cnt[:, 0, 0]  # 轮廓点坐标格式为 (n,1,2)，提取x列
-        # 检查是否接触左侧（x=0）和右侧（x=width-1）
+        x_coords = cnt[:, 0, 0]
         touches_left = np.any(x_coords <= 1)
         touches_right = np.any(x_coords >= width - 2)
-        # 若同时接触左右两侧，则跳过；否则保留
         if touches_left and touches_right:
             continue
 
@@ -93,10 +90,10 @@ def extract_bordered_region(img, card_size=(1200, 600)):
 
         if len(approx) == 4:
             selected_contour = cnt
-            approx_final = approx  # 保存近似结果供后续使用
-            break  # 找到符合条件的即跳出循环
+            approx_final = approx
+            break
 
-    # 显示框选区域
+            # 显示框选区域
     # result = img.copy()
     # cv2.drawContours(result, selected_contour, -1, (0, 0, 255), 10)
     # cv2.imshow('Display Window', result)
@@ -108,7 +105,7 @@ def extract_bordered_region(img, card_size=(1200, 600)):
 
     # 透视变换校正
     src_points = order_points(approx_final.reshape(4, 2))
-    w, h = card_size  # 输出尺寸根据实际需求调整
+    w, h = card_size
     dst_points = np.float32([[0, 0], [w, 0], [w, h], [0, h]])
     M = cv2.getPerspectiveTransform(src_points, dst_points)
     warped = cv2.warpPerspective(img, M, card_size)
@@ -141,38 +138,27 @@ def order_points(pts):
 def mask_upper(img, strict_mode=True, return_copy=False):
     """
     将二值图像的上半部分40%区域置为黑色(0)
-
-    参数：
-    img : numpy.ndarray
-        OpenCV图像对象，建议为单通道二值图像
-    strict_mode : bool (默认True)
-        True: 严格检查输入是否为二值图像
-        False: 自动转换非二值图像
-    return_copy : bool (默认True)
+    img : numpy.ndarray 二值图像
+    strict_mode : bool 是否检查输入为二值图像
+    return_copy : bool
         True: 返回修改后的副本，保留原始图像
         False: 直接修改原始图像
-
-    返回：
-    numpy.ndarray : 处理后的图像
-
-    异常：
-    ValueError: 当strict_mode=True且检测到非二值图像时抛出
     """
     # 输入验证
     if not isinstance(img, np.ndarray):
-        raise TypeError("输入必须是numpy数组")
+        raise TypeError("输入不是是numpy数组")
 
     # 自动转换彩色图像为灰度
     if len(img.shape) == 3:
         if strict_mode:
-            raise ValueError("严格模式下不接受彩色图像输入")
+            raise ValueError("不是二值图像")
         img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 
     # 严格模式验证二值图像
     if strict_mode:
         unique_vals = np.unique(img)
         if len(unique_vals) > 2 or (set(unique_vals) - {0, 255}):
-            raise ValueError("严格模式需要标准二值图像(0/255)")
+            raise ValueError("不是二值图像")
 
     # 创建副本或直接操作
     target = img.copy() if return_copy else img
@@ -181,7 +167,6 @@ def mask_upper(img, strict_mode=True, return_copy=False):
     height = target.shape[0]
     cutoff = int(height * 0.5)
 
-    # 应用遮罩
     if cutoff > 0:  # 防止高度过小的情况
         target[:cutoff, :] = 0
 
@@ -195,7 +180,7 @@ def single_card_OCR(img, first_line=True):
     返回 string
     """
 
-    ocr = PaddleOCR(lang='ch')  # need to run only once to download and load model into memory
+    ocr = PaddleOCR(lang='ch')
     result = ocr.ocr(img)
     text = None
     for idx in range(len(result)):
@@ -248,14 +233,15 @@ def single_card_OCR(img, first_line=True):
 
     return text.strip()
 
+
 def ocr_2(img):
     # Paddleocr supports Chinese, English, French, German, Korean and Japanese
     # You can set the parameter `lang` as `ch`, `en`, `french`, `german`, `korean`, `japan`
     # to switch the language model in order
 
     h, w = img.shape[:2]
-    img = img[int(h*0.4):h, :]
-    h = int(h*0.6)
+    img = img[int(h * 0.4):h, :]
+    h = int(h * 0.6)
     # cv2.imshow("b_img",cv2.resize(img,(int(400*w/h),400)))
     # cv2.waitKey(0)
     ocr = PaddleOCR(use_angle_cls=True, lang='ch')
@@ -266,17 +252,15 @@ def ocr_2(img):
         for line in res:
             text = line[1][0]
             conf = line[1][1]
-            if ('壶' in text) and (conf>0.6):
+            if ('壶' in text) and (conf > 0.6):
                 # print(text)
                 break
-        if text != None:
+        if text is not None:
             break
-            
-    if text == None:
+
+    if text is None:
         raise ValueError("无法确认有壶的名称")
     elif not ('\u4e00' <= text[0] <= '\u9fff'):
-            return text[1:]
+        return text[1:]
 
     return text.strip()
-
-

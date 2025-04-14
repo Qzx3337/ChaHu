@@ -13,10 +13,9 @@ def operate_all():
     # 收集结果
     results = []
 
-    # 设置显示窗口
     # cv2.namedWindow('Processing Result', cv2.WINDOW_NORMAL)
 
-    # 遍历处理所有图片
+    # 遍历所有图片
     for idx, filename in enumerate(img_files):
         print(f"\n正在处理第 {idx + 1}/{len(img_files)} 张图片：{filename}")
         record = {"file_name": filename, "hu_name": "", "ocr_state": "fail"}
@@ -25,7 +24,7 @@ def operate_all():
         img = cv2.imread(input_path)
 
         if img is None:
-            print(f"  × 无法读取图片")
+            print(f"  无法读取图片")
             continue
 
         try:
@@ -62,7 +61,7 @@ def operate_all():
         # 调整列顺序
         df = df[["file_name", "hu_name", "ocr_state"]]
         df.to_csv(output_file, index=False, encoding='utf-8-sig')
-        print(f"处理完成！结果已保存到 {output_file}")
+        print(f"结果已保存到 {output_file}")
         print(f"成功识别：{len(df[df['ocr_state'] == 'succeed'])} 条")
         print(f"识别失败：{len(df[df['ocr_state'] == 'fail'])} 条")
     else:
