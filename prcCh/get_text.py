@@ -8,7 +8,7 @@ def operate_all():
     input_dir = "zisha teapot dataset"
     img_files = [f for f in os.listdir(input_dir)
                  if f.lower().endswith(('.jpg', '.jpeg'))]
-    output_file = "ocr_results.csv"    # 输出文件名
+    output_file = "ocr_results.csv"  # 输出文件名
 
     # 收集结果
     results = []
@@ -54,7 +54,6 @@ def operate_all():
             results.append(record)
     print("\n处理完成！")
 
-
     # 创建DataFrame并保存
     if results:
         df = pd.DataFrame(results)
@@ -70,8 +69,9 @@ def operate_all():
 
 def operate_test():
     # 读取图像
-    img = cv2.imread("zisha teapot dataset/IMG_20240628_140756.jpg")
+    img = cv2.imread("zisha teapot dataset/IMG_20240628_140750.jpg")
     try:
+        raise
         hu_name = ocr_2(img)
         print(hu_name)
     except Exception as e1:
@@ -81,9 +81,9 @@ def operate_test():
             text_region = extract_bordered_region(img)
 
             # 可视化结果
-            # cv2.imshow("Original", img)
-            # cv2.imshow("Text Region", text_region)
-            # cv2.waitKey(0)
+            cv2.imshow("Original", cv2.resize(img, (800, 600)))
+            cv2.imshow("Text Region", cv2.resize(text_region, (800, 400)))
+            cv2.waitKey(0)
 
             hu_name = single_card_OCR(text_region)
             print(hu_name)
@@ -93,5 +93,5 @@ def operate_test():
             print(f"处理失败：{str(e)}")
 
 
-# operate_test()
-operate_all()
+operate_test()
+# operate_all()

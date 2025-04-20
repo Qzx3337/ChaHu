@@ -19,7 +19,7 @@ def main():
     full_dataset = TeaPotDataset(root_dir='zisha teapot dataset', csv_file='ocr_results_revised.csv')
 
     # 数据集分割
-    train_size = int(0.8 * len(full_dataset))
+    train_size = int(0.9 * len(full_dataset))
     val_size = len(full_dataset) - train_size
     train_dataset, val_dataset = random_split(full_dataset, [train_size, val_size])
 
@@ -85,7 +85,7 @@ def main():
         scheduler.step(val_acc)
         if val_acc > best_acc:
             best_acc = val_acc
-            torch.save(model.state_dict(), 'best_model.pth')
+            torch.save(model.state_dict(), 'my_model.pth')
             print('=> Saved new best model')
 
 

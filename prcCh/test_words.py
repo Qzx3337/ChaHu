@@ -190,7 +190,7 @@ def single_card_OCR(img, first_line=True):
             if '壶' in text:
                 # print(text)
                 break
-        if text != None:
+        if text is not None:
             break
     # text = result[0][0][1][0]
     # print(text)
@@ -224,6 +224,8 @@ def single_card_OCR(img, first_line=True):
     #
     # # cv2.imshow("roi", roi)
     # # cv2.waitKey(0)
+    # cv2.imshow("binary", cv2.resize(binary,(600,300)))
+    # cv2.waitKey(0)
     #
     # text = pytesseract.image_to_string(title, lang='chi_sim')
     # print(text)
@@ -260,7 +262,7 @@ def ocr_2(img):
 
     if text is None:
         raise ValueError("无法确认有壶的名称")
-    elif not ('\u4e00' <= text[0] <= '\u9fff'):
+    elif not ('\u4e00' <= text[0] <= '\u9fff' or text[0]=='“'):
         return text[1:]
 
     return text.strip()
