@@ -25,10 +25,17 @@ class TeaPotClassifier(nn.Module):
         )
 
         # 注意力机制
+        # self.attention = nn.Sequential(
+        #     nn.Conv2d(1536, 64, kernel_size=1),
+        #     nn.ReLU(),
+        #     nn.Conv2d(64, 1, kernel_size=1),
+        #     nn.Sigmoid()
+        # )
         self.attention = nn.Sequential(
-            nn.Conv2d(1536, 64, kernel_size=1),
+            nn.AdaptiveAvgPool2d(1),
+            nn.Conv2d(1536, 256, 1),
             nn.ReLU(),
-            nn.Conv2d(64, 1, kernel_size=1),
+            nn.Conv2d(256, 1, 1),
             nn.Sigmoid()
         )
 

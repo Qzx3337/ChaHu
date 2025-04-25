@@ -40,6 +40,46 @@ TeaPotClassifier(
 )
 ```
 
+#### 下面将模型绘制为结构图
+
+
+![All.drawio.png](materials%20for%20display/All.drawio.png)
+
+首先是整个模型的总览，由 EfficientNet_B3 和 GC_attention 模块链接而成。下面分别具体展示这两个模块的结构。
+
+
+![Efficient_B3.drawio.png](materials%20for%20display/Efficient_B3.drawio.png)
+
+
+其次为 EfficientNet_B3 模块的内部结构图。
+
+其中， Stage1 和 Stage9 是首尾模块，负责处理输出输出，
+内部的 Stage 2~8 是 MBConv_n 模块的重复堆叠， Layers 表示重复堆叠次数。
+下面将具体展示 MBConv_n 的结构图。
+
+![MBConv_n.drawio.png](materials%20for%20display/MBConv_n.drawio.png)
+
+MBConv_n 模块作为 EfficientNet_B3 中的核心模块，其结构如图。其中，
+- Conv1x1 用于升维。
+- DwConv 模块中 k x k 的值由其在 EfficientNet 中所在的位置决定，并已经在其结构图中给出具体参数。
+- SE Attention 模块是嵌入的注意力机制，其具体结构图将在下文中给出。
+- Dropout 模块在 MBConv_n 内部和外部均有使用，此处的内部 Dropout 的丢弃率参数为 0.2 . 对于整个 EfficientNet 的丢弃率为 0.3.
+- 结构末尾是相加的，故要求原特征矩阵和输出的特征矩阵 shape 完全相同。
+
+下面给出 SE Attention 模块结构图。
+
+![SE_Attention.drawio.png](materials%20for%20display/SE_Attention.drawio.png)
+
+SE Attention 模块是嵌入 MBConv_n 中的的注意力机制，其中，
+- 对于输入首先进行平均池化操作。
+- FC1 的节点个数为 MBConv 的输入特征矩阵的通道数的 1/4 .
+- FC2 的节点个数为 Depwise 模块输出特征矩阵的通道数。
+
+![GC_Attention.drawio.png](materials%20for%20display/GC_Attention.drawio.png)
+
+GC_Attention 模块是链接在 EfficientNet 后的注意力模块，其同样进行了平均池化和降维。
+
+
 数据集本身具有茶壶种类多，图片总数不多的特征。
 对于个别茶壶，可能只有一到两张图片。这可能会造成模型的泛化能力很差，需要从数据集制作的角度入手解决。
 
