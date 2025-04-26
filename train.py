@@ -8,7 +8,7 @@ from model import TeaPotClassifier
 
 # 训练配置
 BATCH_SIZE = 32
-EPOCHS = 50
+EPOCHS = 40
 LEARNING_RATE = 1e-3
 NUM_WORKERS = 4
 DEVICE = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
