@@ -56,7 +56,7 @@ if __name__ == '__main__':
 
     # 对每张图片进行预测
     for img_file in image_files:
-        img_path = os.path.join('materials for display', img_file)  # 替换为图片目录
+        img_path = os.path.join('materials_for_display', img_file)  # 替换为图片目录
         if not os.path.exists(img_path):
             print(f"Image {img_file} not found!")
             continue

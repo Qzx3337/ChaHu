@@ -42,13 +42,12 @@ TeaPotClassifier(
 
 #### 下面将模型绘制为结构图
 
-
-![All.drawio.png](materials%20for%20display/All.drawio.png)
+![All.drawio.png](materials_for_display/All.drawio.png)
 
 首先是整个模型的总览，由 EfficientNet_B3 和 GC_attention 模块链接而成。下面分别具体展示这两个模块的结构。
 
 
-![Efficient_B3.drawio.png](materials%20for%20display/Efficient_B3.drawio.png)
+![Efficient_B3.drawio.png](materials_for_display/Efficient_B3.drawio.png)
 
 
 其次为 EfficientNet_B3 模块的内部结构图。
@@ -57,7 +56,8 @@ TeaPotClassifier(
 内部的 Stage 2~8 是 MBConv_n 模块的重复堆叠， Layers 表示重复堆叠次数。
 下面将具体展示 MBConv_n 的结构图。
 
-![MBConv_n.drawio.png](materials%20for%20display/MBConv_n.drawio.png)
+
+![MBConv_n.drawio.png](materials_for_display/MBConv_n.drawio.png)
 
 MBConv_n 模块作为 EfficientNet_B3 中的核心模块，其结构如图。其中，
 - Conv1x1 用于升维。
@@ -68,14 +68,14 @@ MBConv_n 模块作为 EfficientNet_B3 中的核心模块，其结构如图。其
 
 下面给出 SE Attention 模块结构图。
 
-![SE_Attention.drawio.png](materials%20for%20display/SE_Attention.drawio.png)
+![SE_Attention.drawio.png](materials_for_display/SE_Attention.drawio.png)
 
 SE Attention 模块是嵌入 MBConv_n 中的的注意力机制，其中，
 - 对于输入首先进行平均池化操作。
 - FC1 的节点个数为 MBConv 的输入特征矩阵的通道数的 1/4 .
 - FC2 的节点个数为 Depwise 模块输出特征矩阵的通道数。
 
-![GC_Attention.drawio.png](materials%20for%20display/GC_Attention.drawio.png)
+![GC_Attention.drawio.png](materials_for_display/GC_Attention.drawio.png)
 
 GC_Attention 模块是链接在 EfficientNet 后的注意力模块，其同样进行了平均池化和降维。
 
@@ -83,7 +83,7 @@ GC_Attention 模块是链接在 EfficientNet 后的注意力模块，其同样�
 数据集本身具有茶壶种类多，图片总数不多的特征。
 对于个别茶壶，可能只有一到两张图片。这可能会造成模型的泛化能力很差，需要从数据集制作的角度入手解决。
 
-![茶壶阴影图.png](prcCh/%E8%8C%B6%E5%A3%B6%E9%98%B4%E5%BD%B1%E5%9B%BE.png)
+![chahuyinying.png](materials_for_display/chahuyinying.png)
 
 茶壶阴影图.png
 
@@ -119,7 +119,7 @@ GC_Attention 模块是链接在 EfficientNet 后的注意力模块，其同样�
 ```1: 2```
 的矩形。这里得到了较好的纯文字卡片，如下图所示。
 
-![方钟壶介绍卡片.png](prcCh/%E6%96%B9%E9%92%9F%E5%A3%B6%E4%BB%8B%E7%BB%8D%E5%8D%A1%E7%89%87.png)
+![fangzhonghu_kapian.png](materials_for_display/fangzhonghu_kapian.png)
 
 方钟壶介绍卡片.png
 
@@ -197,9 +197,9 @@ ChaHu/
 
 ### 五、实验结果
 
-![IMG_20240628_140750_1.jpg](materials%20for%20display/IMG_20240628_140750_1.jpg)
-![IMG_20240628_140826_1.jpg](materials%20for%20display/IMG_20240628_140826_1.jpg)
-![IMG_20240628_141001_1.jpg](materials%20for%20display/IMG_20240628_141001_1.jpg)
+![IMG_20240628_140750_1.jpg](materials_for_display/IMG_20240628_140750_1.jpg)
+![IMG_20240628_140826_1.jpg](materials_for_display/IMG_20240628_140826_1.jpg)
+![IMG_20240628_141001_1.jpg](materials_for_display/IMG_20240628_141001_1.jpg)
 
 ```
 Image: IMG_20240628_141001_1.jpg -> Predicted: 白泥堆绘高灯笼壶,
